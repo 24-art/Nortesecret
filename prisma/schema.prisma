@@ -1,0 +1,100 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["nortesecret"]
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  role      Role     @default(CUSTOMER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  sales Sale[]
+
+  @@map("users")
+  @@schema("nortesecret")
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  products Product[]
+
+  @@map("categories")
+  @@schema("nortesecret")
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  brand       Brand
+  description String?
+  content     String?
+  price       Float
+  stock       Int      @default(0)
+  image       String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  saleDetails SaleDetail[]
+
+  @@map("products")
+  @@schema("nortesecret")
+}
+
+model Sale {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  details SaleDetail[]
+
+  @@map("sales")
+  @@schema("nortesecret")
+}
+
+model SaleDetail {
+  id       Int @id @default(autoincrement())
+  quantity Int
+
+  saleId Int
+  sale   Sale @relation(fields: [saleId], references: [id])
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("sale_details")
+  @@schema("nortesecret")
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+
+  @@schema("nortesecret")
+}
+
+enum Brand {
+  ESIKA
+  LBEL
+  CYZONE
+
+  @@schema("nortesecret")
+}
