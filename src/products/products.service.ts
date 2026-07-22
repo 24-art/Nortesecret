@@ -8,8 +8,10 @@ export class ProductsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createProductDto: CreateProductDto) {
+    const categoryId = Number(createProductDto.categoryId);
+
     const categoryExists = await this.prisma.category.findUnique({
-      where: { id: Number(createProductDto.categoryId) },
+      where: { id: categoryId },
     });
 
     if (!categoryExists) {
@@ -20,8 +22,14 @@ export class ProductsService {
 
     return this.prisma.product.create({
       data: {
-        ...createProductDto,
-        categoryId: Number(createProductDto.categoryId),
+        name: createProductDto.name,
+        brand: createProductDto.brand,
+        description: createProductDto.description,
+        price: Number(createProductDto.price),
+        stock: Number(createProductDto.stock),
+        category: {
+          connect: { id: categoryId },
+        },
       },
     });
   }
@@ -37,7 +45,9 @@ export class ProductsService {
   async findOne(id: string) {
     const product = await this.prisma.product.findUnique({
       where: { id: Number(id) },
-      include: { category: true },
+      include: {
+        category: true,
+      },
     });
 
     if (!product) {
@@ -52,13 +62,33 @@ export class ProductsService {
   async update(id: string, updateProductDto: UpdateProductDto) {
     await this.findOne(id);
 
+    const categoryId = updateProductDto.categoryId
+      ? Number(updateProductDto.categoryId)
+      : undefined;
+
     return this.prisma.product.update({
       where: { id: Number(id) },
       data: {
-        ...updateProductDto,
-        categoryId: updateProductDto.categoryId
-          ? Number(updateProductDto.categoryId)
-          : undefined,
+        ...(updateProductDto.name && {
+          name: updateProductDto.name,
+        }),
+        ...(updateProductDto.brand && {
+          brand: updateProductDto.brand,
+        }),
+        ...(updateProductDto.description && {
+          description: updateProductDto.description,
+        }),
+        ...(updateProductDto.price && {
+          price: Number(updateProductDto.price),
+        }),
+        ...(updateProductDto.stock && {
+          stock: Number(updateProductDto.stock),
+        }),
+        ...(categoryId && {
+          category: {
+            connect: { id: categoryId },
+          },
+        }),
       },
     });
   }
