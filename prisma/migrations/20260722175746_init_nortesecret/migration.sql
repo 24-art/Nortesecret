@@ -4,6 +4,9 @@ CREATE SCHEMA IF NOT EXISTS "nortesecret";
 -- CreateEnum
 CREATE TYPE "nortesecret"."Role" AS ENUM ('CUSTOMER', 'ADMIN');
 
+-- CreateEnum
+CREATE TYPE "nortesecret"."Brand" AS ENUM ('ESIKA', 'LBEL', 'CYZONE');
+
 -- CreateTable
 CREATE TABLE "nortesecret"."users" (
     "id" SERIAL NOT NULL,
@@ -31,7 +34,9 @@ CREATE TABLE "nortesecret"."categories" (
 CREATE TABLE "nortesecret"."products" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
+    "brand" "nortesecret"."Brand" NOT NULL,
     "description" TEXT,
+    "content" TEXT,
     "price" DOUBLE PRECISION NOT NULL,
     "stock" INTEGER NOT NULL DEFAULT 0,
     "image" TEXT,
